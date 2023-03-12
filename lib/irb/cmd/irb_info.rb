@@ -11,7 +11,7 @@ module IRB
       description "Show information about IRB."
 
       def execute
-        Class.new {
+        c = Class.new {
           def inspect
             str  = "Ruby version: #{RUBY_VERSION}\n"
             str += "IRB version: #{IRB.version}\n"
@@ -29,6 +29,8 @@ module IRB
           end
           alias_method :to_s, :inspect
         }.new
+        puts c
+        c
       end
     end
   end
