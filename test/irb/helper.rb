@@ -1,5 +1,6 @@
 require "test/unit"
 require "pathname"
+require_relative "../lib/envutil"
 
 begin
   require_relative "../lib/helper"

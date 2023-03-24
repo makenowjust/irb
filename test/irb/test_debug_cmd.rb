@@ -8,7 +8,6 @@ end
 
 require "tempfile"
 require "tmpdir"
-require "envutil"
 
 require_relative "helper"
 
@@ -40,10 +39,10 @@ module TestIRB
 
       output = run_ruby_file do
         type "backtrace"
-        type "q!"
+        type "exit!"
       end
 
-      assert_match(/\(rdbg:irb\) backtrace/, output)
+      assert_match(/irb\(main\):001:0> backtrace/, output)
       assert_match(/Object#foo at #{@ruby_file.to_path}/, output)
     end
 
@@ -59,7 +58,8 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg\) next/, output)
+      assert_match(/irb\(main\):001:0> debug/, output)
+      assert_match(/irb:rdbg\(main\):001:0> next/, output)
       assert_match(/=>   2\| puts "hello"/, output)
     end
 
@@ -74,7 +74,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) next/, output)
+      assert_match(/irb\(main\):001:0> next/, output)
       assert_match(/=>   2\| puts "hello"/, output)
     end
 
@@ -90,7 +90,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) break/, output)
+      assert_match(/irb\(main\):001:0> break/, output)
       assert_match(/=>   2\| puts "Hello"/, output)
     end
 
@@ -109,7 +109,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) delete/, output)
+      assert_match(/irb:rdbg\(main\):001:0> delete/, output)
       assert_match(/deleted: #0  BP - Line/, output)
     end
 
@@ -128,7 +128,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) step/, output)
+      assert_match(/irb\(main\):001:0> step/, output)
       assert_match(/=>   5\| foo/, output)
       assert_match(/=>   2\|   puts "Hello"/, output)
     end
@@ -146,7 +146,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) continue/, output)
+      assert_match(/irb\(main\):001:0> continue/, output)
       assert_match(/=> 3: binding.irb/, output)
     end
 
@@ -164,7 +164,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) finish/, output)
+      assert_match(/irb\(main\):001:0> finish/, output)
       assert_match(/=>   4\| end/, output)
     end
 
@@ -182,7 +182,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) info/, output)
+      assert_match(/irb\(main\):001:0> info/, output)
       assert_match(/%self = main/, output)
       assert_match(/a = "Hello"/, output)
     end
@@ -199,7 +199,7 @@ module TestIRB
         type "continue"
       end
 
-      assert_match(/\(rdbg:irb\) catch/, output)
+      assert_match(/irb\(main\):001:0> catch/, output)
       assert_match(/Stop by #0  BP - Catch  "ZeroDivisionError"/, output)
     end
 

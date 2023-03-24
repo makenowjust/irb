@@ -18,6 +18,7 @@ require_relative "irb/color"
 
 require_relative "irb/version"
 require_relative "irb/easter-egg"
+require_relative "irb/debug"
 
 # IRB stands for "interactive Ruby" and is a tool to interactively execute Ruby
 # expressions read from the standard input.
@@ -374,6 +375,21 @@ module IRB
 
   @CONF = {}
 
+  def self.readline(binding, prompt_name: nil)
+    workspace = IRB::WorkSpace.new(binding)
+    irb = IRB::Irb.new(workspace)
+    irb.context.irb_name = prompt_name if prompt_name
+    conf[:IRB_RC].call(irb.context) if conf[:IRB_RC]
+    conf[:MAIN_CONTEXT] = irb.context
+
+    prev_trap = trap("SIGINT") do
+      signal_handle
+    end
+
+    catch(:IRB_EXIT) do
+      irb.eval_input
+    end
+  end
 
   # Displays current configuration.
   #
@@ -915,7 +931,6 @@ module IRB
     array.join("\n")
   end
 end
-
 class Binding
   # Opens an IRB session where +binding.irb+ is called which allows for
   # interactive debugging. You can call any methods or variables available in
@@ -980,7 +995,16 @@ class Binding
     STDOUT.print(workspace.code_around_binding) if show_code
     binding_irb = IRB::Irb.new(workspace)
     binding_irb.context.irb_path = File.expand_path(source_location[0])
-    binding_irb.run(IRB.conf)
+
+    if defined?(DEBUGGER__::SESSION)
+      # If we've started a debugger session and hit another binding.irb, we don't want to start an IRB session
+      # instead, we want to resume the debugger session.
+      IRB::Debug.setup
+      IRB::Debug.insert_debug_break
+    else
+      binding_irb.run(IRB.conf)
+    end
+
     binding_irb.debug_break
   end
 end
